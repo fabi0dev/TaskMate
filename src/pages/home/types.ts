@@ -1,15 +1,10 @@
 export interface Frames {
   id: string;
-  order: number;
   title: string;
+  tasks: Task[];
 }
 
-export interface Todo {
-  id: string;
-  description: string;
-}
-
-export interface TodoData {
+export interface Task {
   id: string;
   description: string;
   done: boolean;

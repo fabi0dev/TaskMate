@@ -5,5 +5,5 @@ interface ContentProps {
 }
 
 export const Content: FC<ContentProps> = ({ children }) => {
-  return <div className="bg-gray-100 flex min-h-[100vh]">{children}</div>;
+  return <div className="text-gray-50 flex min-h-[100vh]">{children}</div>;
 };

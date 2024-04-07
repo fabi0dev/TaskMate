@@ -6,7 +6,7 @@ interface ContentTasksProps {
 
 export const ContentTasks: FC<ContentTasksProps> = ({ title }) => {
   return (
-    <div className="border bg-white rounded-sm shadow-lg p-5">
+    <div className="border border-slate-600 bg-slate-700 shadow-lg p-5">
       <h2 className="text-lg  mb-2">{title}</h2>
     </div>
   );
