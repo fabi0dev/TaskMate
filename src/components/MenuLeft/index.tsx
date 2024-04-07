@@ -152,11 +152,7 @@ export const MenuLeft: FC = () => {
         dateSelected={dateCurrent}
       />
 
-      <MenuTitle>Grupos</MenuTitle>
-
-      {groups.map((item) => (
-        <GroupItem key={item.id} data={item} />
-      ))}
+      <MenuTitle>Grupos de Tarefas</MenuTitle>
 
       <div
         className={cn(
@@ -168,6 +164,10 @@ export const MenuLeft: FC = () => {
       >
         <Plus size={25} color="#242831" />
       </div>
+
+      {groups.map((item) => (
+        <GroupItem key={item.id} data={item} />
+      ))}
 
       <Modal isOpen={isModalOpen} onClose={handleModalClose}>
         <ModalOverlay />

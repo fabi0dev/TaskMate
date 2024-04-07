@@ -25,14 +25,14 @@ export const slice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    setNewTask: (state: TasksProps, action: PayloadAction<Partial<Task>>) => {
+    setNewTask: (state: TasksProps, action: PayloadAction<Partial<ITask>>) => {
       const taskId = state.data.length + 1;
       action.payload.id = taskId;
       action.payload.done = false;
       action.payload.groupId = state.groupIdCurrent;
       action.payload.date = state.dateCurrent;
 
-      state.data.push(action.payload as Task);
+      state.data.push(action.payload as ITask);
       state.data.sort((a, b) => {
         const [startHourA] = a.time.split(" ")[0].split(":");
         const [startHourB] = b.time.split(" ")[0].split(":");
@@ -50,13 +50,16 @@ export const slice = createSlice({
     deleteTask: (state, action: PayloadAction<number>) => {
       state.data = state.data.filter((task) => task.id !== action.payload);
     },
-    editTask: (state, action: PayloadAction<Task>) => {
+    editTask: (state, action: PayloadAction<Partial<ITask>>) => {
       const index = state.data.findIndex(
         (task) => task.id === action.payload.id
       );
 
       if (index !== -1) {
-        state.data[index] = action.payload;
+        state.data[index] = {
+          ...state.data[index],
+          ...(action.payload as ITask),
+        };
       }
     },
     selectDateCurrent: (state, action: PayloadAction<Date>) => {

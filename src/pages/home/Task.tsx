@@ -119,6 +119,7 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
 
     dispatch(
       editTask({
+        id,
         title: data.editTaskTitle,
         time: `${startTime} ~ ${endTime}`,
       })
@@ -210,7 +211,7 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
                   <div>
                     <Input
                       type="text"
-                      placeholder="Hora de Início"
+                      placeholder="Hora"
                       {...register("editTaskStartHour")}
                       isInvalid={!!errors.editTaskStartHour}
                       maxLength={2}
@@ -219,7 +220,7 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
                   <div>
                     <Input
                       type="text"
-                      placeholder="Minuto de Início"
+                      placeholder="Minuto"
                       {...register("editTaskStartMinute")}
                       isInvalid={!!errors.editTaskStartMinute}
                       maxLength={2}
@@ -228,14 +229,14 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
                 </div>
               </div>
 
-              <div className="mt-2">
+              <div className="mt-3">
                 <div>Hora de Finalização</div>
 
                 <div className="flex gap-5 items-center">
                   <div>
                     <Input
                       type="text"
-                      placeholder="Hora de Fim"
+                      placeholder="Hora"
                       {...register("editTaskEndHour")}
                       isInvalid={!!errors.editTaskEndHour}
                       maxLength={2}
@@ -245,7 +246,7 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
                   <div>
                     <Input
                       type="text"
-                      placeholder="Minuto de Fim"
+                      placeholder="Minuto"
                       {...register("editTaskEndMinute")}
                       isInvalid={!!errors.editTaskEndMinute}
                       maxLength={2}
