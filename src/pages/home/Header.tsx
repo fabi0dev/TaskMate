@@ -19,56 +19,38 @@ import { selectorTasks, setNewTask } from "../../store/reducers/tasks";
 import { FormError } from "@components/FormError";
 import { format, isAfter, isSameDay, parse } from "date-fns";
 import { selectorGroups } from "../../store/reducers/groups";
+import InputMask from "react-input-mask";
 
 interface FormData {
   newTaskTitle: string;
-  newTaskStartHour: string;
-  newTaskStartMinute: string;
-  newTaskEndHour: string;
-  newTaskEndMinute: string;
+  newTaskStart: string; // Combine hora e minuto em um único campo
+  newTaskEnd: string; // Combine hora e minuto em um único campo
 }
 
 const schema = yup.object().shape({
   newTaskTitle: yup.string().required("Título da Tarefa é obrigatório"),
-  newTaskStartHour: yup
+  newTaskStart: yup
     .string()
     .required("Hora de Início é obrigatória")
-    .matches(/^([01]?[0-9]|2[0-3])$/, "Hora inválida"),
-  newTaskStartMinute: yup
-    .string()
-    .required("Minuto de Início é obrigatório")
-    .matches(/^[0-5]?[0-9]$/, "Minuto inválido"),
-  newTaskEndHour: yup
+    .matches(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/, "Formato de Hora inválido"),
+  newTaskEnd: yup
     .string()
     .required("Hora de Fim é obrigatória")
-    .matches(/^([01]?[0-9]|2[0-3])$/, "Hora inválida")
+    .matches(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/, "Formato de Hora inválido")
     .test(
       "is-greater",
       "Hora de Fim deve ser maior que Hora de Início",
       function (value, context) {
-        const startHour = parseInt(context.parent.newTaskStartHour, 10);
-        const startMinute = parseInt(context.parent.newTaskStartMinute, 10);
-        const endHour = parseInt(value, 10);
-        const endMinute = parseInt(context.parent.newTaskEndMinute, 10);
-
         const startDateTime = parse(
-          `${startHour}:${startMinute}`,
+          context.parent.newTaskStart,
           "HH:mm",
           new Date()
         );
-        const endDateTime = parse(
-          `${endHour}:${endMinute}`,
-          "HH:mm",
-          new Date()
-        );
+        const endDateTime = parse(value, "HH:mm", new Date());
 
         return isAfter(endDateTime, startDateTime);
       }
     ),
-  newTaskEndMinute: yup
-    .string()
-    .required("Minuto de Fim é obrigatório")
-    .matches(/^[0-5]?[0-9]$/, "Minuto inválido"),
 });
 
 export const Header = () => {
@@ -86,9 +68,7 @@ export const Header = () => {
     .filter((item) => isSameDay(item.date, dateCurrent))
     .filter((item) => item.groupId == groupIdCurrent);
 
-  const { title: titleGroup } = groups.find(
-    (item) => item.id == groupIdCurrent
-  );
+  const titleGroup = groups.find((item) => item.id == groupIdCurrent)?.title;
 
   const tasksPending = tasksGroup.filter((item) => !item.done);
   const tasksDone = tasksGroup.filter((item) => item.done);
@@ -106,19 +86,10 @@ export const Header = () => {
   const onClose = () => setIsOpen(false);
 
   const onSubmit = (data: FormData) => {
-    const {
-      newTaskStartHour,
-      newTaskStartMinute,
-      newTaskEndHour,
-      newTaskEndMinute,
-    } = data;
-    const startTime = `${newTaskStartHour}:${newTaskStartMinute}`;
-    const endTime = `${newTaskEndHour}:${newTaskEndMinute}`;
-
     dispatch(
       setNewTask({
         title: data.newTaskTitle,
-        time: `${startTime} ~ ${endTime}`,
+        time: `${data.newTaskStart} ~ ${data.newTaskEnd}`,
       })
     );
     setIsOpen(false);
@@ -168,72 +139,41 @@ export const Header = () => {
                   <FormError>{errors.newTaskTitle.message}</FormError>
                 )}
               </div>
-              <div className="mt-4">
-                <div>Hora de início</div>
-
-                <div className="flex gap-5 items-center">
+              <div className="flex mt-4 gap-5 ">
+                <div className="items-center">
+                  <div>Hora de início</div>
                   <div>
                     <Input
                       type="text"
-                      placeholder="Hora "
-                      {...register("newTaskStartHour")}
-                      isInvalid={!!errors.newTaskStartHour}
-                      maxLength={2}
+                      placeholder="Horas"
+                      {...register("newTaskStart")}
+                      isInvalid={!!errors.newTaskStart}
                     />
                   </div>
+                </div>
+
+                <div className="items-center">
+                  <div>Hora de Finalização</div>
                   <div>
                     <Input
                       type="text"
-                      placeholder="Minuto"
-                      {...register("newTaskStartMinute")}
-                      isInvalid={!!errors.newTaskStartMinute}
-                      maxLength={2}
+                      placeholder="Horas"
+                      {...register("newTaskEnd")}
+                      isInvalid={!!errors.newTaskEnd}
+                      as={InputMask}
+                      mask="99:99"
                     />
                   </div>
                 </div>
               </div>
+              <div>
+                {errors.newTaskStart && (
+                  <FormError>{errors.newTaskStart.message}</FormError>
+                )}
 
-              <div className="mt-3">
-                <div>Hora de Finalização</div>
-
-                <div className="flex gap-5 items-center">
-                  <div>
-                    <Input
-                      type="text"
-                      placeholder="Hora"
-                      {...register("newTaskEndHour")}
-                      isInvalid={!!errors.newTaskEndHour}
-                      maxLength={2}
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="text"
-                      placeholder="Minuto"
-                      {...register("newTaskEndMinute")}
-                      isInvalid={!!errors.newTaskEndMinute}
-                      maxLength={2}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  {errors.newTaskEndHour && (
-                    <FormError>{errors.newTaskEndHour.message}</FormError>
-                  )}
-
-                  {errors.newTaskEndMinute && (
-                    <FormError>{errors.newTaskEndMinute.message}</FormError>
-                  )}
-
-                  {errors.newTaskStartHour && (
-                    <FormError>{errors.newTaskStartHour.message}</FormError>
-                  )}
-
-                  {errors.newTaskStartMinute && (
-                    <FormError>{errors.newTaskStartMinute.message}</FormError>
-                  )}
-                </div>
+                {errors.newTaskEnd && (
+                  <FormError>{errors.newTaskEnd.message}</FormError>
+                )}
               </div>
             </form>
           </ModalBody>

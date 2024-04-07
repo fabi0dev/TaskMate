@@ -40,7 +40,7 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
     const startingDay = firstDayOfMonth(currentDate);
     const today = new Date().getDate();
 
-    const { data: tasks, dateCurrent, groupIdCurrent } = store.getState().tasks;
+    const { data: tasks } = store.getState().tasks;
 
     const calendar: JSX.Element[] = [];
 

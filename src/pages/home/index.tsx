@@ -6,6 +6,7 @@ import { Header } from "./Header";
 import { useSelector } from "react-redux";
 import { selectorTasks } from "../../store/reducers/tasks";
 import { isSameDay } from "date-fns";
+import { Quote } from "lucide-react";
 
 export const Home: React.FC = () => {
   const {
@@ -49,6 +50,13 @@ export const Home: React.FC = () => {
           {tasksDone.map((item, index) => (
             <Task data={item} key={index} />
           ))}
+
+          {!tasksGroup.length && (
+            <div className="p-5  text-center text-gray-600 font-bold">
+              <Quote className="mx-auto my-2" size={25} />
+              Nenhuma tarefa para mostrar.
+            </div>
+          )}
         </div>
       </div>
     </Content>

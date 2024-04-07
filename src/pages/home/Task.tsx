@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormError } from "@components/FormError";
 import { isAfter, parse } from "date-fns";
+import InputMask from "react-input-mask";
 
 interface TaskProps {
   data: ITask;
@@ -36,59 +37,41 @@ interface TaskProps {
 
 interface FormData {
   editTaskTitle: string;
-  editTaskStartHour: string;
-  editTaskStartMinute: string;
-  editTaskEndHour: string;
-  editTaskEndMinute: string;
+  editTaskStart: string; // Combine hora e minuto em um único campo
+  editTaskEnd: string; // Combine hora e minuto em um único campo
 }
 
 const schema = yup.object().shape({
   editTaskTitle: yup.string().required("Título da Tarefa é obrigatório"),
-  editTaskStartHour: yup
+  editTaskStart: yup
     .string()
     .required("Hora de Início é obrigatória")
-    .matches(/^([01]?[0-9]|2[0-3])$/, "Hora inválida"),
-  editTaskStartMinute: yup
-    .string()
-    .required("Minuto de Início é obrigatório")
-    .matches(/^[0-5]?[0-9]$/, "Minuto inválido"),
-  editTaskEndHour: yup
+    .matches(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/, "Formato de Hora inválido"),
+  editTaskEnd: yup
     .string()
     .required("Hora de Fim é obrigatória")
-    .matches(/^([01]?[0-9]|2[0-3])$/, "Hora inválida")
+    .matches(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/, "Formato de Hora inválido")
     .test(
       "is-greater",
       "Hora de Fim deve ser maior que Hora de Início",
       function (value, context) {
-        const startHour = parseInt(context.parent.editTaskStartHour, 10);
-        const startMinute = parseInt(context.parent.editTaskStartMinute, 10);
-        const endHour = parseInt(value, 10);
-        const endMinute = parseInt(context.parent.editTaskEndMinute, 10);
-
         const startDateTime = parse(
-          `${startHour}:${startMinute}`,
+          context.parent.editTaskStart,
           "HH:mm",
           new Date()
         );
-        const endDateTime = parse(
-          `${endHour}:${endMinute}`,
-          "HH:mm",
-          new Date()
-        );
+        const endDateTime = parse(value, "HH:mm", new Date());
 
         return isAfter(endDateTime, startDateTime);
       }
     ),
-  editTaskEndMinute: yup
-    .string()
-    .required("Minuto de Fim é obrigatório")
-    .matches(/^[0-5]?[0-9]$/, "Minuto inválido"),
 });
 
 export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -108,20 +91,11 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
   };
 
   const handleEditTask = (data: FormData) => {
-    const {
-      editTaskStartHour,
-      editTaskStartMinute,
-      editTaskEndHour,
-      editTaskEndMinute,
-    } = data;
-    const startTime = `${editTaskStartHour}:${editTaskStartMinute}`;
-    const endTime = `${editTaskEndHour}:${editTaskEndMinute}`;
-
     dispatch(
       editTask({
         id,
         title: data.editTaskTitle,
-        time: `${startTime} ~ ${endTime}`,
+        time: `${data.editTaskStart} ~ ${data.editTaskEnd}`,
       })
     );
     setShowEdit(false);
@@ -129,10 +103,8 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
 
   useEffect(() => {
     setValue("editTaskTitle", title);
-    setValue("editTaskStartHour", time.split(" ~ ")[0].split(":")[0]);
-    setValue("editTaskStartMinute", time.split(" ~ ")[0].split(":")[1]);
-    setValue("editTaskEndHour", time.split(" ~ ")[1].split(":")[0]);
-    setValue("editTaskEndMinute", time.split(" ~ ")[1].split(":")[1]);
+    setValue("editTaskStart", time.split(" ~ ")[0]);
+    setValue("editTaskEnd", time.split(" ~ ")[1]);
   }, [setValue, title, time]);
 
   return (
@@ -204,73 +176,44 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
                   <FormError>{errors.editTaskTitle.message}</FormError>
                 )}
               </div>
-              <div className="mt-4">
-                <div>Hora de início</div>
-
-                <div className="flex gap-5 items-center">
+              <div className="mt-4 flex gap-5 ">
+                <div className=" items-center">
+                  <div>Hora de início</div>
                   <div>
                     <Input
                       type="text"
-                      placeholder="Hora"
-                      {...register("editTaskStartHour")}
-                      isInvalid={!!errors.editTaskStartHour}
-                      maxLength={2}
+                      placeholder="Horas"
+                      {...register("editTaskStart")}
+                      isInvalid={!!errors.editTaskStart}
+                      as={InputMask}
+                      mask="99:99"
                     />
                   </div>
+                </div>
+
+                <div className=" items-center">
+                  <div>Hora de Finalização</div>
                   <div>
                     <Input
                       type="text"
-                      placeholder="Minuto"
-                      {...register("editTaskStartMinute")}
-                      isInvalid={!!errors.editTaskStartMinute}
-                      maxLength={2}
+                      placeholder="Horas"
+                      {...register("editTaskEnd")}
+                      isInvalid={!!errors.editTaskEnd}
+                      as={InputMask}
+                      mask="99:99"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="mt-3">
-                <div>Hora de Finalização</div>
+              <div>
+                {errors.editTaskStart && (
+                  <FormError>{errors.editTaskStart.message}</FormError>
+                )}
 
-                <div className="flex gap-5 items-center">
-                  <div>
-                    <Input
-                      type="text"
-                      placeholder="Hora"
-                      {...register("editTaskEndHour")}
-                      isInvalid={!!errors.editTaskEndHour}
-                      maxLength={2}
-                    />
-                  </div>
-
-                  <div>
-                    <Input
-                      type="text"
-                      placeholder="Minuto"
-                      {...register("editTaskEndMinute")}
-                      isInvalid={!!errors.editTaskEndMinute}
-                      maxLength={2}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  {errors.editTaskStartHour && (
-                    <FormError>{errors.editTaskStartHour.message}</FormError>
-                  )}
-
-                  {errors.editTaskStartMinute && (
-                    <FormError>{errors.editTaskStartMinute.message}</FormError>
-                  )}
-
-                  {errors.editTaskEndHour && (
-                    <FormError>{errors.editTaskEndHour.message}</FormError>
-                  )}
-
-                  {errors.editTaskEndMinute && (
-                    <FormError>{errors.editTaskEndMinute.message}</FormError>
-                  )}
-                </div>
+                {errors.editTaskEnd && (
+                  <FormError>{errors.editTaskEnd.message}</FormError>
+                )}
               </div>
             </form>
           </ModalBody>
