@@ -27,7 +27,11 @@ export const Home: React.FC = () => {
             <Task data={item} key={index} />
           ))}
 
-          <div className="font-bold text-xl my-5 cursor-pointer">Concluído</div>
+          {tasksPending.length > 0 && (
+            <div className="font-bold text-xl my-5 cursor-pointer">
+              Concluído
+            </div>
+          )}
           {tasksPending.map((item, index) => (
             <Task data={item} key={index} />
           ))}

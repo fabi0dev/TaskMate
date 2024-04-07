@@ -5,6 +5,7 @@ interface Task {
   title: string;
   time: string;
   done: boolean;
+  groupId: number;
 }
 
 interface TasksProps {
@@ -18,9 +19,22 @@ const initialState: TasksProps = {
       title: "Fazer faxina",
       time: "9:30 ~ 9:45",
       done: false,
+      groupId: 1,
     },
-    { id: "2", title: "Fazer Almoço", done: false, time: "10:30 ~ 12:00" },
-    { id: "3", title: "Fazer Janta", done: true, time: "17:30 ~ 18:30" },
+    {
+      id: "2",
+      title: "Fazer Almoço",
+      done: false,
+      time: "10:30 ~ 12:00",
+      groupId: 1,
+    },
+    {
+      id: "3",
+      title: "Fazer Janta",
+      done: true,
+      time: "17:30 ~ 18:30",
+      groupId: 1,
+    },
   ],
 };
 
@@ -30,6 +44,13 @@ export const slice = createSlice({
   reducers: {
     setNewTask: (state, action: PayloadAction<Task>) => {
       state.data.push(action.payload);
+      state.data.sort((a, b) => {
+        const [startHourA] = a.time.split(" ")[0].split(":");
+        const [startHourB] = b.time.split(" ")[0].split(":");
+        return parseInt(startHourA) - parseInt(startHourB);
+      });
+
+      state.data = [...state.data];
     },
     markTaskAsDone: (state, action: PayloadAction<string>) => {
       const task = state.data.find((task) => task.id === action.payload);

@@ -17,6 +17,7 @@ import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { selectorTasks, setNewTask } from "../../store/reducers/tasks";
 import { FormError } from "@components/FormError";
+import { isAfter, parse } from "date-fns";
 
 interface FormData {
   newTaskTitle: string;
@@ -45,8 +46,22 @@ const schema = yup.object().shape({
       "Hora de Fim deve ser maior que Hora de Início",
       function (value, context) {
         const startHour = parseInt(context.parent.newTaskStartHour, 10);
+        const startMinute = parseInt(context.parent.newTaskStartMinute, 10);
         const endHour = parseInt(value, 10);
-        return endHour > startHour;
+        const endMinute = parseInt(context.parent.newTaskEndMinute, 10);
+
+        const startDateTime = parse(
+          `${startHour}:${startMinute}`,
+          "HH:mm",
+          new Date()
+        );
+        const endDateTime = parse(
+          `${endHour}:${endMinute}`,
+          "HH:mm",
+          new Date()
+        );
+
+        return isAfter(endDateTime, startDateTime);
       }
     ),
   newTaskEndMinute: yup
@@ -68,6 +83,7 @@ export const Header = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
@@ -90,9 +106,11 @@ export const Header = () => {
         title: data.newTaskTitle,
         time: `${startTime} ~ ${endTime}`,
         done: false,
+        groupId: 1,
       })
     );
     setIsOpen(false);
+    reset();
   };
 
   return (
@@ -126,6 +144,7 @@ export const Header = () => {
                   placeholder="Título da Tarefa"
                   {...register("newTaskTitle")}
                   isInvalid={!!errors.newTaskTitle}
+                  autoFocus
                 />
 
                 {errors.newTaskTitle && (
@@ -144,9 +163,6 @@ export const Header = () => {
                       isInvalid={!!errors.newTaskStartHour}
                       maxLength={2}
                     />
-                    {errors.newTaskStartHour && (
-                      <FormError>{errors.newTaskStartHour.message}</FormError>
-                    )}
                   </div>
                   <div>
                     <Input
@@ -156,9 +172,6 @@ export const Header = () => {
                       isInvalid={!!errors.newTaskStartMinute}
                       maxLength={2}
                     />
-                    {errors.newTaskStartMinute && (
-                      <FormError>{errors.newTaskStartMinute.message}</FormError>
-                    )}
                   </div>
                 </div>
               </div>
@@ -167,43 +180,59 @@ export const Header = () => {
                 <div>Hora de Finalização</div>
 
                 <div className="flex gap-5 items-center">
-                  <Input
-                    type="text"
-                    placeholder="Hora de Fim"
-                    {...register("newTaskEndHour")}
-                    isInvalid={!!errors.newTaskEndHour}
-                    maxLength={2}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Minuto de Fim"
-                    {...register("newTaskEndMinute")}
-                    isInvalid={!!errors.newTaskEndMinute}
-                    maxLength={2}
-                  />
+                  <div>
+                    <Input
+                      type="text"
+                      placeholder="Hora de Fim"
+                      {...register("newTaskEndHour")}
+                      isInvalid={!!errors.newTaskEndHour}
+                      maxLength={2}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="text"
+                      placeholder="Minuto de Fim"
+                      {...register("newTaskEndMinute")}
+                      isInvalid={!!errors.newTaskEndMinute}
+                      maxLength={2}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="text-red-500 text-sm">
-                {errors.newTaskEndHour && (
-                  <FormError>{errors.newTaskEndHour.message}</FormError>
-                )}
-                {errors.newTaskEndMinute && (
-                  <FormError>{errors.newTaskEndMinute.message}</FormError>
-                )}
+
+                <div>
+                  {errors.newTaskEndHour && (
+                    <FormError>{errors.newTaskEndHour.message}</FormError>
+                  )}
+
+                  {errors.newTaskEndMinute && (
+                    <FormError>{errors.newTaskEndMinute.message}</FormError>
+                  )}
+
+                  {errors.newTaskStartHour && (
+                    <FormError>{errors.newTaskStartHour.message}</FormError>
+                  )}
+
+                  {errors.newTaskStartMinute && (
+                    <FormError>{errors.newTaskStartMinute.message}</FormError>
+                  )}
+                </div>
               </div>
             </form>
           </ModalBody>
 
           <ModalFooter>
+            <Button mr={3} onClick={onClose}>
+              Cancelar
+            </Button>
+
             <Button
-              leftIcon={<Plus />}
+              leftIcon={<Plus size={16} />}
               variant={"primary"}
-              mr={3}
               onClick={handleSubmit(onSubmit)}
             >
               Adicionar
             </Button>
-            <Button onClick={onClose}>Cancelar</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

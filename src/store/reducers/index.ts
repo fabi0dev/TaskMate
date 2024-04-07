@@ -1,2 +1,3 @@
 import tasks from "./tasks";
-export default { tasks };
+import groups from "./groups";
+export default { tasks, groups };

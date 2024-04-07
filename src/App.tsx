@@ -43,6 +43,13 @@ const theme = extendTheme({
             bg: "#0bae2d",
           },
         },
+        secondary: {
+          bg: "#00b0c7",
+          fontWeight: "normal",
+          _hover: {
+            bg: "#00c2db",
+          },
+        },
       },
     },
   },
