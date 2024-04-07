@@ -80,7 +80,7 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
               : ""
           )}
         >
-          <div className="mt-1">{i}</div>
+          <div className="mt-2">{i}</div>
           <div
             className={cn(
               "rounded-full w-1 h-1 mb-1 mx-auto ",

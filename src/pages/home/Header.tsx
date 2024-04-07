@@ -113,7 +113,7 @@ export const Header = () => {
       </div>
 
       <div className="text-gray-500">
-        <div className="flex gap-3 items-center mb-2">
+        <div className="flex gap-3 items-center mb-2 text-gray-400">
           <CalendarCheck size={16} /> {format(dateCurrent, "dd/MM/yyyy")}
         </div>
         <span>{tasksDone.length} Concluídos</span> |{" "}
@@ -148,6 +148,8 @@ export const Header = () => {
                       placeholder="Horas"
                       {...register("newTaskStart")}
                       isInvalid={!!errors.newTaskStart}
+                      as={InputMask}
+                      mask="99:99"
                     />
                   </div>
                 </div>
