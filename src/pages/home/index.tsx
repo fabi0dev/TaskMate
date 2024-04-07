@@ -13,6 +13,7 @@ export const Home: React.FC = () => {
     dateCurrent,
     groupIdCurrent,
   } = useSelector(selectorTasks);
+
   const tasksGroup = tasks
     .filter((item) => isSameDay(item.date, dateCurrent))
     .filter((item) => item.groupId == groupIdCurrent);

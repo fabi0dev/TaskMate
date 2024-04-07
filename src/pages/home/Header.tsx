@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectorTasks, setNewTask } from "../../store/reducers/tasks";
 import { FormError } from "@components/FormError";
 import { format, isAfter, isSameDay, parse } from "date-fns";
+import { selectorGroups } from "../../store/reducers/groups";
 
 interface FormData {
   newTaskTitle: string;
@@ -79,9 +80,15 @@ export const Header = () => {
     groupIdCurrent,
   } = useSelector(selectorTasks);
 
+  const { groups } = useSelector(selectorGroups);
+
   const tasksGroup = tasks
     .filter((item) => isSameDay(item.date, dateCurrent))
     .filter((item) => item.groupId == groupIdCurrent);
+
+  const { title: titleGroup } = groups.find(
+    (item) => item.id == groupIdCurrent
+  );
 
   const tasksPending = tasksGroup.filter((item) => !item.done);
   const tasksDone = tasksGroup.filter((item) => item.done);
@@ -121,7 +128,9 @@ export const Header = () => {
   return (
     <div className="py-5 rounded-md">
       <div className="flex items-center justify-between">
-        <div className="text-2xl font-semibold ">Atividades</div>
+        <div className="text-2xl font-semibold ">
+          Atividades {titleGroup && ` de ${titleGroup}`}
+        </div>
         <Button
           color={"white"}
           variant={"primary"}

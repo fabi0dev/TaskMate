@@ -32,6 +32,7 @@ import {
   selectGroupIdCurrent,
   selectorTasks,
 } from "../../store/reducers/tasks";
+import { isSameDay } from "date-fns";
 
 interface FormData {
   groupName: string;
@@ -45,6 +46,7 @@ export const MenuLeft: FC = () => {
   const dispatch = useDispatch();
 
   const { groups } = useSelector(selectorGroups);
+
   const {
     data: tasks,
     groupIdCurrent,
@@ -69,7 +71,9 @@ export const MenuLeft: FC = () => {
   };
 
   const GroupItem: FC<{ data: Group }> = ({ data: { id, title } }) => {
-    const total = tasks.filter((item) => item.groupId === id);
+    const total = tasks
+      .filter((item) => isSameDay(item.date, dateCurrent))
+      .filter((item) => item.groupId === id);
 
     const handleEditGroup = (groupId: number) => {
       console.log("Editar grupo com ID:", groupId);

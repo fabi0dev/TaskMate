@@ -60,9 +60,7 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
         currentDate.getMonth() === new Date().getMonth() &&
         currentDate.getFullYear() === new Date().getFullYear();
 
-      const tasksGroup = tasks
-        .filter((item) => isSameDay(item.date, itemDate))
-        .filter((item) => item.groupId == groupIdCurrent);
+      const tasksGroup = tasks.filter((item) => isSameDay(item.date, itemDate));
 
       calendar.push(
         <div
@@ -85,8 +83,13 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
           <div className="mt-1">{i}</div>
           <div
             className={cn(
-              "rounded-full w-1 h-1 mx-auto ",
-              tasksGroup.length > 0 ? "bg-primary" : ""
+              "rounded-full w-1 h-1 mb-1 mx-auto ",
+              tasksGroup.length > 0 ? "bg-primary" : "",
+              dateSelected &&
+                compareDates(dateSelected, itemDate) &&
+                tasksGroup.length > 0
+                ? "bg-white"
+                : ""
             )}
           ></div>
         </div>
