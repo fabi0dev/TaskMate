@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
+import { isSameDay } from "date-fns";
+import { store } from "../../store/store";
 
 interface CalendarProps {
   onClickDate?: (date: Date) => void;
@@ -29,18 +31,16 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
     );
   };
 
-  const compareDates = (date1: Date, date2: Date) => {
-    return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
-    );
+  const compareDates = (dateA: Date, dateB: Date) => {
+    return isSameDay(dateA, dateB);
   };
 
   const renderCalendar = (): JSX.Element[] => {
     const totalDays = daysInMonth(currentDate);
     const startingDay = firstDayOfMonth(currentDate);
     const today = new Date().getDate();
+
+    const { data: tasks, dateCurrent, groupIdCurrent } = store.getState().tasks;
 
     const calendar: JSX.Element[] = [];
 
@@ -55,14 +55,14 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
         i
       );
 
-      if (dateSelected) {
-        console.log(compareDates(dateSelected, itemDate));
-      }
-
       const isCurrentDay =
         i === today &&
         currentDate.getMonth() === new Date().getMonth() &&
         currentDate.getFullYear() === new Date().getFullYear();
+
+      const tasksGroup = tasks
+        .filter((item) => isSameDay(item.date, itemDate))
+        .filter((item) => item.groupId == groupIdCurrent);
 
       calendar.push(
         <div
@@ -83,7 +83,12 @@ export const Calendar = ({ onClickDate, dateSelected }: CalendarProps) => {
           )}
         >
           <div className="mt-1">{i}</div>
-          <div className="rounded-full w-1 h-1 mx-auto "></div>
+          <div
+            className={cn(
+              "rounded-full w-1 h-1 mx-auto ",
+              tasksGroup.length > 0 ? "bg-primary" : ""
+            )}
+          ></div>
         </div>
       );
     }

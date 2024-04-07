@@ -22,6 +22,7 @@ import {
   markTaskAsDone,
   deleteTask,
   editTask,
+  ITask,
 } from "../../store/reducers/tasks";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -29,15 +30,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { FormError } from "@components/FormError";
 import { isAfter, parse } from "date-fns";
 
-interface Task {
-  id: string;
-  title: string;
-  done: boolean;
-  time: string;
-}
-
 interface TaskProps {
-  data: Task;
+  data: ITask;
 }
 
 interface FormData {
@@ -125,11 +119,8 @@ export const Task: FC<TaskProps> = ({ data: { id, title, done, time } }) => {
 
     dispatch(
       editTask({
-        id,
         title: data.editTaskTitle,
         time: `${startTime} ~ ${endTime}`,
-        done: false,
-        groupId: 1,
       })
     );
     setShowEdit(false);

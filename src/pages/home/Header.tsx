@@ -9,7 +9,7 @@ import {
   ModalCloseButton,
   Input,
 } from "@chakra-ui/react";
-import { Plus } from "lucide-react";
+import { CalendarCheck, Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { selectorTasks, setNewTask } from "../../store/reducers/tasks";
 import { FormError } from "@components/FormError";
-import { isAfter, parse } from "date-fns";
+import { format, isAfter, isSameDay, parse } from "date-fns";
 
 interface FormData {
   newTaskTitle: string;
@@ -73,10 +73,18 @@ const schema = yup.object().shape({
 export const Header = () => {
   const dispatch = useDispatch();
 
-  const { data: tasks } = useSelector(selectorTasks);
+  const {
+    data: tasks,
+    dateCurrent,
+    groupIdCurrent,
+  } = useSelector(selectorTasks);
 
-  const tasksPending = tasks.filter((item) => !item.done);
-  const tasksDone = tasks.filter((item) => item.done);
+  const tasksGroup = tasks
+    .filter((item) => isSameDay(item.date, dateCurrent))
+    .filter((item) => item.groupId == groupIdCurrent);
+
+  const tasksPending = tasksGroup.filter((item) => !item.done);
+  const tasksDone = tasksGroup.filter((item) => item.done);
 
   const [isOpen, setIsOpen] = useState(false);
   const {
@@ -102,11 +110,8 @@ export const Header = () => {
 
     dispatch(
       setNewTask({
-        id: Math.random().toString(36).substring(7),
         title: data.newTaskTitle,
         time: `${startTime} ~ ${endTime}`,
-        done: false,
-        groupId: 1,
       })
     );
     setIsOpen(false);
@@ -128,6 +133,9 @@ export const Header = () => {
       </div>
 
       <div className="text-gray-500">
+        <div className="flex gap-3 items-center mb-2">
+          <CalendarCheck size={16} /> {format(dateCurrent, "dd/MM/yyyy")}
+        </div>
         <span>{tasksDone.length} Concluídos</span> |{" "}
         <span>{tasksPending.length} Pendentes</span>
       </div>
@@ -158,7 +166,7 @@ export const Header = () => {
                   <div>
                     <Input
                       type="text"
-                      placeholder="Hora de Início"
+                      placeholder="Hora "
                       {...register("newTaskStartHour")}
                       isInvalid={!!errors.newTaskStartHour}
                       maxLength={2}
@@ -167,7 +175,7 @@ export const Header = () => {
                   <div>
                     <Input
                       type="text"
-                      placeholder="Minuto de Início"
+                      placeholder="Minuto"
                       {...register("newTaskStartMinute")}
                       isInvalid={!!errors.newTaskStartMinute}
                       maxLength={2}
@@ -176,14 +184,14 @@ export const Header = () => {
                 </div>
               </div>
 
-              <div className="mt-2">
+              <div className="mt-3">
                 <div>Hora de Finalização</div>
 
                 <div className="flex gap-5 items-center">
                   <div>
                     <Input
                       type="text"
-                      placeholder="Hora de Fim"
+                      placeholder="Hora"
                       {...register("newTaskEndHour")}
                       isInvalid={!!errors.newTaskEndHour}
                       maxLength={2}
@@ -192,7 +200,7 @@ export const Header = () => {
                   <div>
                     <Input
                       type="text"
-                      placeholder="Minuto de Fim"
+                      placeholder="Minuto"
                       {...register("newTaskEndMinute")}
                       isInvalid={!!errors.newTaskEndMinute}
                       maxLength={2}

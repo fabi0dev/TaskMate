@@ -1,49 +1,38 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface Task {
-  id: string;
+export interface ITask {
+  id: number;
   title: string;
   time: string;
   done: boolean;
   groupId: number;
+  date: Date;
 }
 
 interface TasksProps {
-  data: Task[];
+  dateCurrent: Date;
+  groupIdCurrent: number;
+  data: ITask[];
 }
 
 const initialState: TasksProps = {
-  data: [
-    {
-      id: "1",
-      title: "Fazer faxina",
-      time: "9:30 ~ 9:45",
-      done: false,
-      groupId: 1,
-    },
-    {
-      id: "2",
-      title: "Fazer Almoço",
-      done: false,
-      time: "10:30 ~ 12:00",
-      groupId: 1,
-    },
-    {
-      id: "3",
-      title: "Fazer Janta",
-      done: true,
-      time: "17:30 ~ 18:30",
-      groupId: 1,
-    },
-  ],
+  dateCurrent: new Date(),
+  groupIdCurrent: 0,
+  data: [],
 };
 
 export const slice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    setNewTask: (state, action: PayloadAction<Task>) => {
-      state.data.push(action.payload);
+    setNewTask: (state: TasksProps, action: PayloadAction<Partial<Task>>) => {
+      const taskId = state.data.length + 1;
+      action.payload.id = taskId;
+      action.payload.done = false;
+      action.payload.groupId = state.groupIdCurrent;
+      action.payload.date = state.dateCurrent;
+
+      state.data.push(action.payload as Task);
       state.data.sort((a, b) => {
         const [startHourA] = a.time.split(" ")[0].split(":");
         const [startHourB] = b.time.split(" ")[0].split(":");
@@ -52,13 +41,13 @@ export const slice = createSlice({
 
       state.data = [...state.data];
     },
-    markTaskAsDone: (state, action: PayloadAction<string>) => {
+    markTaskAsDone: (state, action: PayloadAction<number>) => {
       const task = state.data.find((task) => task.id === action.payload);
       if (task) {
         task.done = !task.done;
       }
     },
-    deleteTask: (state, action: PayloadAction<string>) => {
+    deleteTask: (state, action: PayloadAction<number>) => {
       state.data = state.data.filter((task) => task.id !== action.payload);
     },
     editTask: (state, action: PayloadAction<Task>) => {
@@ -70,11 +59,23 @@ export const slice = createSlice({
         state.data[index] = action.payload;
       }
     },
+    selectDateCurrent: (state, action: PayloadAction<Date>) => {
+      state.dateCurrent = action.payload;
+    },
+    selectGroupIdCurrent: (state, action: PayloadAction<number>) => {
+      state.groupIdCurrent = action.payload;
+    },
   },
 });
 
-export const { setNewTask, markTaskAsDone, deleteTask, editTask } =
-  slice.actions;
+export const {
+  setNewTask,
+  markTaskAsDone,
+  deleteTask,
+  editTask,
+  selectDateCurrent,
+  selectGroupIdCurrent,
+} = slice.actions;
 export default slice.reducer;
 export const selectorTasks = (state: { tasks: TasksProps }): TasksProps =>
   state.tasks;

@@ -15,7 +15,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { cn } from "../../lib/utils";
-import { Calendar } from "..";
+import { Calendar, FormError } from "..";
 import { EllipsisVertical, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -25,30 +25,41 @@ import {
   Group,
   selectorGroups,
   createGroup,
+  deleteGroup,
 } from "../../store/reducers/groups";
-import { selectorTasks } from "../../store/reducers/tasks";
+import {
+  selectDateCurrent,
+  selectGroupIdCurrent,
+  selectorTasks,
+} from "../../store/reducers/tasks";
 
 interface FormData {
   groupName: string;
 }
 
 export const MenuLeft: FC = () => {
-  const [dateSelected, setDateSelected] = useState<Date>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
   const dispatch = useDispatch();
 
   const { groups } = useSelector(selectorGroups);
-  const { data: tasks } = useSelector(selectorTasks);
+  const {
+    data: tasks,
+    groupIdCurrent,
+    dateCurrent,
+  } = useSelector(selectorTasks);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(
       yup.object().shape({
-        groupName: yup.string().required("Nome do Grupo é obrigatório"),
+        groupName: yup.string().required("Nome do grupo é obrigatório"),
       })
     ),
   });
@@ -60,13 +71,28 @@ export const MenuLeft: FC = () => {
   const GroupItem: FC<{ data: Group }> = ({ data: { id, title } }) => {
     const total = tasks.filter((item) => item.groupId === id);
 
+    const handleEditGroup = (groupId: number) => {
+      console.log("Editar grupo com ID:", groupId);
+    };
+
+    const handleDeleteGroup = (groupId: number) => {
+      setSelectedGroupId(groupId);
+      setIsDeleteModalOpen(true);
+    };
+
+    const handleSelectGroup = () => {
+      dispatch(selectGroupIdCurrent(id));
+    };
+
     return (
       <div
         className={cn(
+          groupIdCurrent == id ? "border" : "",
           `p-4 rounded-md bg-slate2 border-l-8 border-primary`,
           "flex items-center justify-between mb-3",
           "hover:opacity-80 cursor-pointer"
         )}
+        onClick={() => handleSelectGroup()}
       >
         <div className="text-xl font-semibold">{title}</div>
         <div className="flex items-center gap-x-2">
@@ -79,8 +105,8 @@ export const MenuLeft: FC = () => {
               className="text-gray-600 cursor-pointer"
             />
             <MenuList>
-              <MenuItem>Editar</MenuItem>
-              <MenuItem>Excluir</MenuItem>
+              <MenuItem onClick={() => handleEditGroup(id)}>Editar</MenuItem>
+              <MenuItem onClick={() => handleDeleteGroup(id)}>Excluir</MenuItem>
             </MenuList>
           </Menu>
         </div>
@@ -96,9 +122,15 @@ export const MenuLeft: FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleConfirmDeleteGroup = () => {
+    dispatch(deleteGroup(selectedGroupId!));
+    setIsDeleteModalOpen(false);
+  };
+
   const onSubmit = (data: FormData) => {
     dispatch(createGroup(data.groupName));
     handleModalClose();
+    reset();
   };
 
   return (
@@ -111,9 +143,9 @@ export const MenuLeft: FC = () => {
 
       <Calendar
         onClickDate={(date) => {
-          setDateSelected(date);
+          dispatch(selectDateCurrent(date));
         }}
-        dateSelected={dateSelected}
+        dateSelected={dateCurrent}
       />
 
       <MenuTitle>Grupos</MenuTitle>
@@ -136,7 +168,7 @@ export const MenuLeft: FC = () => {
       <Modal isOpen={isModalOpen} onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Adicionar Novo Grupo</ModalHeader>
+          <ModalHeader>Novo Grupo</ModalHeader>
           <ModalCloseButton />
           <form onSubmit={handleSubmit(onSubmit)}>
             <ModalBody>
@@ -144,15 +176,52 @@ export const MenuLeft: FC = () => {
                 placeholder="Nome do Grupo"
                 {...register("groupName")}
                 isInvalid={!!errors.groupName}
+                autoComplete="off"
+                autoFocus
               />
+              {errors.groupName && (
+                <FormError>{errors.groupName.message}</FormError>
+              )}
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="blue" mr={3} type="submit">
+              <Button mr={3} onClick={handleModalClose}>
+                Cancelar
+              </Button>
+
+              <Button
+                colorScheme="blue"
+                type="submit"
+                variant={"primary"}
+                leftIcon={<Plus size={16} />}
+              >
                 Adicionar
               </Button>
-              <Button onClick={handleModalClose}>Cancelar</Button>
             </ModalFooter>
           </form>
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirmar exclusão</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>Tem certeza que deseja excluir este grupo?</ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="red"
+              mr={3}
+              onClick={() => handleConfirmDeleteGroup()}
+            >
+              Excluir
+            </Button>
+            <Button onClick={() => setIsDeleteModalOpen(false)}>
+              Cancelar
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>

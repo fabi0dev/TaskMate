@@ -10,12 +10,7 @@ interface GroupsProps {
 }
 
 const initialState: GroupsProps = {
-  groups: [
-    {
-      id: 1,
-      title: "Default",
-    },
-  ],
+  groups: [],
 };
 
 const groupsSlice = createSlice({

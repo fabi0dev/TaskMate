@@ -6,7 +6,7 @@ import { default as slices } from "./reducers";
 const currencyPersistConfig = {
   key: "myapp",
   storage: localforage,
-  safelist: ["tasks"],
+  safelist: ["tasks", "groups"],
 };
 
 const all = combineReducers({

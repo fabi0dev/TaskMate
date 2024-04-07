@@ -5,5 +5,5 @@ interface FormErrorProps {
 }
 
 export const FormError: FC<FormErrorProps> = ({ children }) => {
-  return <div className="text-red-400 text-xs mt-1">{children || " "}</div>;
+  return <div className="text-red-400 text-xs mt-2">{children || " "}</div>;
 };
