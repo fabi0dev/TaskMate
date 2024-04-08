@@ -31,7 +31,7 @@ const schema = yup.object().shape({
   newTaskTitle: yup.string().required("Título da Tarefa é obrigatório"),
   newTaskStart: yup
     .string()
-    .test("hour-start-validate", "Hora de início inválida.", (value) => {
+    .test("hour-start-validate", "Hora de início inválida.", (value: any) => {
       if (value) {
         return value.match(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/);
       }
@@ -40,7 +40,7 @@ const schema = yup.object().shape({
     }),
   newTaskEnd: yup
     .string()
-    .test("hour-end-validate", "Hora fim inválida.", (value) => {
+    .test("hour-end-validate", "Hora fim inválida.", (value: any) => {
       if (value) {
         return value.match(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/);
       }
@@ -93,7 +93,7 @@ export const Header = () => {
     formState: { errors },
     reset,
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
   });
 
   const onClose = () => setIsOpen(false);

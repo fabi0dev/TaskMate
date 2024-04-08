@@ -2,7 +2,6 @@ import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectorTasks } from "../../store/reducers/tasks";
 import { isSameDay } from "date-fns";
-import { Header } from "./Header";
 import { Task } from "./Task";
 import { cn } from "../../lib/utils";
 
