@@ -17,7 +17,6 @@ import {
 import {
   Edit,
   EllipsisVertical,
-  Hourglass,
   Pencil,
   Timer,
   Trash,
