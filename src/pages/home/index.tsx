@@ -2,6 +2,8 @@ import React from "react";
 import { Content } from "@components/Content";
 import { MenuLeft } from "@components/MenuLeft";
 import { ContentTasksScheduled } from "./ContentTasksScheduled";
+import { ContentTasks } from "./ContentTasks";
+import { Header } from "./Header";
 
 export const Home: React.FC = () => {
   return (
@@ -11,7 +13,21 @@ export const Home: React.FC = () => {
           <MenuLeft />
         </div>
 
-        <ContentTasksScheduled />
+        <div className="relative overflow-auto">
+          <div>
+            <Header />
+
+            <div className="grid grid-cols-[auto_400px]">
+              <ContentTasksScheduled />
+
+              <div className="p-5">
+                <div className="sticky top-[140px]">
+                  <ContentTasks />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div></div>
       </div>

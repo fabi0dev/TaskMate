@@ -29,7 +29,7 @@ interface GroupItemProps {
 }
 
 export const GroupItem: FC<GroupItemProps> = ({
-  data: { id, name, color = "#0bbe35" },
+  data: { id, name, color = "#4c504c" },
   showMenu = true,
 }) => {
   const dispatch = useDispatch();
@@ -42,9 +42,11 @@ export const GroupItem: FC<GroupItemProps> = ({
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const total = tasks
-    .filter((item) => isSameDay(item.date, dateCurrent))
-    .filter((item) => item.groupId === id);
+  let total = tasks.filter((item) => isSameDay(item.date, dateCurrent));
+
+  if (id != 0) {
+    total = total.filter((item) => item.groupId === id);
+  }
 
   const handleEditGroup = (groupId: number) => {
     console.log("Editar grupo com ID:", groupId);
@@ -68,7 +70,7 @@ export const GroupItem: FC<GroupItemProps> = ({
     <div
       className={cn(
         `p-4 rounded-md bg-slate2 border-l-[2px]`,
-        groupIdCurrent == id ? "border-l-[10px]" : "",
+        groupIdCurrent == id ? "border-l-[15px]" : "",
         "flex items-center justify-between mb-3",
         "hover:opacity-80 cursor-pointer"
       )}
@@ -80,10 +82,9 @@ export const GroupItem: FC<GroupItemProps> = ({
       <div className="text-xl font-semibold">{name}</div>
       <div className="flex items-center gap-x-2">
         <div
-          className={"p-1 px-3 rounded-lg font-bold bg-white bg-opacity-5"}
-          style={{
-            color,
-          }}
+          className={
+            "p-1 px-3 rounded-lg bg-white bg-opacity-10 text-gray-300 text-sm"
+          }
         >
           {total.length}
         </div>

@@ -14,9 +14,17 @@ import {
   ModalFooter,
   Button,
 } from "@chakra-ui/react";
-import { Edit, EllipsisVertical, Pencil, Timer, Trash } from "lucide-react";
+import {
+  Edit,
+  EllipsisVertical,
+  Hourglass,
+  Pencil,
+  Timer,
+  Trash,
+  Watch,
+} from "lucide-react";
 import { FC, useEffect, useState } from "react";
-import { cn } from "../../lib/utils";
+import { calculateHourDifference, cn } from "../../lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   markTaskAsDone,
@@ -145,10 +153,22 @@ export const Task: FC<TaskProps> = ({
             </Checkbox>
           </div>
 
-          <div className="pl-[28px] text-gray-500 text-[14px] flex  items-center gap-2">
-            <Timer size={20} />
-            <div className="mt-1">{time}</div>
-          </div>
+          {time && (
+            <div className="pl-[28px] text-gray-500 text-[14px] flex  items-center  gap-2">
+              <div className="flex items-center">
+                <Watch size={22} />
+                <div className="mt-1 flex items-center">{time}</div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                {<Timer size={22} />}
+                {calculateHourDifference(
+                  time.split("~")[0],
+                  time.split("~")[1]
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div>

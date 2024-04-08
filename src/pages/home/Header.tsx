@@ -31,24 +31,38 @@ const schema = yup.object().shape({
   newTaskTitle: yup.string().required("Título da Tarefa é obrigatório"),
   newTaskStart: yup
     .string()
-    .required("Hora de Início é obrigatória")
-    .matches(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/, "Formato de Hora inválido"),
+    .test("hour-start-validate", "Hora de início inválida.", (value) => {
+      if (value) {
+        return value.match(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/);
+      }
+
+      return true;
+    }),
   newTaskEnd: yup
     .string()
-    .required("Hora de Fim é obrigatória")
-    .matches(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/, "Formato de Hora inválido")
+    .test("hour-end-validate", "Hora fim inválida.", (value) => {
+      if (value) {
+        return value.match(/^([01]?[0-9]|2[0-3]):([0-5]?[0-9])$/);
+      }
+
+      return true;
+    })
     .test(
       "is-greater",
       "Hora de Fim deve ser maior que Hora de Início",
       function (value, context) {
-        const startDateTime = parse(
-          context.parent.newTaskStart,
-          "HH:mm",
-          new Date()
-        );
-        const endDateTime = parse(value, "HH:mm", new Date());
+        if (value != "") {
+          const startDateTime = parse(
+            context.parent.newTaskStart,
+            "HH:mm",
+            new Date()
+          );
+          const endDateTime = parse(value as string, "HH:mm", new Date());
 
-        return isAfter(endDateTime, startDateTime);
+          return isAfter(endDateTime, startDateTime);
+        }
+
+        return true;
       }
     ),
 });
@@ -69,11 +83,10 @@ export const Header = () => {
     .filter((item) => item.groupId == groupIdCurrent);
 
   const nameGroup = groups.find((item) => item.id == groupIdCurrent)?.name;
-
   const tasksPending = tasksGroup.filter((item) => !item.done);
   const tasksDone = tasksGroup.filter((item) => item.done);
-
   const [isOpen, setIsOpen] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -89,7 +102,10 @@ export const Header = () => {
     dispatch(
       setNewTask({
         title: data.newTaskTitle,
-        time: `${data.newTaskStart} ~ ${data.newTaskEnd}`,
+        time:
+          data.newTaskStart && data.newTaskEnd
+            ? `${data.newTaskStart} ~ ${data.newTaskEnd}`
+            : "",
       })
     );
     setIsOpen(false);
@@ -97,8 +113,8 @@ export const Header = () => {
   };
 
   return (
-    <div className="rounded-md sticky top-0 bg-slate2 ">
-      <div className="p-10 pb-3 w-[90%] mx-auto">
+    <div className="sticky top-0 bg-slate2 z-10">
+      <div className="p-5 w-[90%] mx-auto">
         <div className="flex items-center justify-between">
           <div className="text-2xl font-semibold ">
             Atividades {nameGroup && ` de ${nameGroup}`}
@@ -126,13 +142,13 @@ export const Header = () => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Adicionar Nova Tarefa</ModalHeader>
+          <ModalHeader>Nova Tarefa</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div>
                 <Input
-                  placeholder="Título da Tarefa"
+                  placeholder="Título"
                   {...register("newTaskTitle")}
                   isInvalid={!!errors.newTaskTitle}
                   autoFocus
@@ -144,7 +160,7 @@ export const Header = () => {
               </div>
               <div className="flex mt-4 gap-5 ">
                 <div className="items-center">
-                  <div>Hora de início</div>
+                  <div>Início</div>
                   <div>
                     <Input
                       type="text"
@@ -158,7 +174,7 @@ export const Header = () => {
                 </div>
 
                 <div className="items-center">
-                  <div>Hora de Finalização</div>
+                  <div>Fim</div>
                   <div>
                     <Input
                       type="text"

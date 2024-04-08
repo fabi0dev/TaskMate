@@ -4,6 +4,7 @@ import { selectorTasks } from "../../store/reducers/tasks";
 import { isSameDay } from "date-fns";
 import { Header } from "./Header";
 import { Task } from "./Task";
+import { cn } from "../../lib/utils";
 
 interface TaskItem {
   id: number;
@@ -21,16 +22,17 @@ export const ContentTasksScheduled: React.FC = () => {
     groupIdCurrent,
   } = useSelector(selectorTasks);
 
-  const tasksGroup = tasks
-    .filter((item) => isSameDay(item.date, dateCurrent))
-    .filter((item) => item.groupId == groupIdCurrent);
+  let tasksGroup = tasks.filter((item) => isSameDay(item.date, dateCurrent));
+  if (groupIdCurrent != 0) {
+    tasksGroup = tasksGroup.filter((item) => item.groupId == groupIdCurrent);
+  }
 
   const startHour = 0;
   const endHour = 23;
 
-  const hours: string[] = [];
+  const hours: number[] = [];
   for (let hour = startHour; hour <= endHour; hour++) {
-    hours.push(`${hour.toString()} ${hour < 12 ? "AM" : "PM"}`);
+    hours.push(hour);
   }
 
   const currentHourRef = useRef<HTMLDivElement>(null);
@@ -42,46 +44,36 @@ export const ContentTasksScheduled: React.FC = () => {
     }
   }, [currentHourRef, dateCurrent, groupIdCurrent]);
 
-  let hourFormated = -1;
-  let turnHour = " AM";
-
   return (
-    <div className="overflow-auto">
-      <Header />
+    <div>
       <div className="p-10 pt-0 w-[90%] mx-auto ">
+        <div className="my-4 font-semibold">Horários de tarefas</div>
+
         <div>
           {hours.map((hour, index) => {
             const tasksAtHour = tasksGroup.filter((task: TaskItem) => {
-              if (
-                parseInt(task.time.split("~")[0].split(":")[0]) ==
-                parseInt(hour)
-              ) {
+              if (parseInt(task.time.split("~")[0].split(":")[0]) == hour) {
                 return task;
               }
             });
 
-            hourFormated++;
-
-            if (hourFormated > 12) {
-              hourFormated = 1;
-              turnHour = " PM";
-            }
-
             return (
               <div key={index} className="flex flex-col">
                 <div
-                  ref={currentHour === parseInt(hour) ? currentHourRef : null}
+                  ref={currentHour === hour ? currentHourRef : null}
                   data-hour={hour}
                   className={`text-gray-500 mt-3 grid grid-cols-[60px_auto] items-center ${
-                    currentHour === parseInt(hour) ? "font-bold" : ""
+                    currentHour === hour ? " text-emerald-800" : ""
                   }`}
                 >
-                  <div>
-                    {hourFormated.toString().padStart(2, "0")}
-                    {turnHour}
-                  </div>
+                  <div>{hour}h00</div>
                   {!tasksAtHour.length && (
-                    <div className="bg-gray-800 h-[1px] w-full"></div>
+                    <div
+                      className={cn(
+                        "bg-gray-800 h-[1px] w-full",
+                        currentHour === hour ? " bg-emerald-800" : ""
+                      )}
+                    ></div>
                   )}
                 </div>
                 {tasksAtHour.map((task, index) => (
