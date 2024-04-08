@@ -2,7 +2,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Group {
   id: number;
-  title: string;
+  name: string;
+  color?: string;
 }
 
 interface GroupsProps {
@@ -17,13 +18,13 @@ const groupsSlice = createSlice({
   name: "groups",
   initialState,
   reducers: {
-    createGroup: (state, action: PayloadAction<string>) => {
+    createGroup: (state, action: PayloadAction<Partial<Group>>) => {
       const newGroupId = state.groups.length + 1;
-      const newGroup: Group = {
-        id: newGroupId,
-        title: action.payload,
+      const newGroup = {
+        id: newGroupId > 0 ? newGroupId : 1,
+        ...action.payload,
       };
-      state.groups.push(newGroup);
+      state.groups.push(newGroup as Group);
     },
     deleteGroup: (state, action: PayloadAction<number>) => {
       const groupIdToDelete = action.payload;

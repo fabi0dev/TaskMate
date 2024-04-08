@@ -68,7 +68,7 @@ export const Header = () => {
     .filter((item) => isSameDay(item.date, dateCurrent))
     .filter((item) => item.groupId == groupIdCurrent);
 
-  const titleGroup = groups.find((item) => item.id == groupIdCurrent)?.title;
+  const nameGroup = groups.find((item) => item.id == groupIdCurrent)?.name;
 
   const tasksPending = tasksGroup.filter((item) => !item.done);
   const tasksDone = tasksGroup.filter((item) => item.done);
@@ -97,27 +97,30 @@ export const Header = () => {
   };
 
   return (
-    <div className="py-5 rounded-md">
-      <div className="flex items-center justify-between">
-        <div className="text-2xl font-semibold ">
-          Atividades {titleGroup && ` de ${titleGroup}`}
+    <div className="rounded-md sticky top-0 bg-slate2 ">
+      <div className="p-10 pb-3 w-[90%] mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="text-2xl font-semibold ">
+            Atividades {nameGroup && ` de ${nameGroup}`}
+          </div>
+          <Button
+            color={"white"}
+            variant={"primary"}
+            leftIcon={<Plus />}
+            onClick={() => setIsOpen(true)}
+          >
+            Nova Tarefa
+          </Button>
         </div>
-        <Button
-          color={"white"}
-          variant={"primary"}
-          leftIcon={<Plus />}
-          onClick={() => setIsOpen(true)}
-        >
-          Nova Tarefa
-        </Button>
-      </div>
 
-      <div className="text-gray-500">
-        <div className="flex gap-3 items-center mb-2 text-gray-400">
-          <CalendarCheck size={16} /> {format(dateCurrent, "dd/MM/yyyy")}
+        <div className="text-gray-500">
+          <div className="flex gap-3 items-center mb-2 text-gray-400">
+            <CalendarCheck size={16} /> {format(dateCurrent, "dd/MM/yyyy")}
+            {!tasksGroup.length && <span> - Nenhuma tarefa agendada.</span>}
+          </div>
+          <span>{tasksDone.length} Concluídos</span> |{" "}
+          <span>{tasksPending.length} Pendentes</span>
         </div>
-        <span>{tasksDone.length} Concluídos</span> |{" "}
-        <span>{tasksPending.length} Pendentes</span>
       </div>
 
       <Modal isOpen={isOpen} onClose={onClose}>
