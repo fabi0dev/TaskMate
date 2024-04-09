@@ -87,7 +87,7 @@ export const ModalAddTask = ({ isOpen, onClose, time }: ModalAddTaskProps) => {
     formState: { errors },
     reset,
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as never,
   });
 
   const onSubmit = (data: FormData) => {
