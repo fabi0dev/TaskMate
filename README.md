@@ -1,9 +1,2 @@
-# Template ReactJs + Vite
-
-Template já inclui
-- TypeScript
-- Tailwind CSS
-- Redux Configurado
-- Redux Persist
-- React Icons
-- Router Dom
+# Task Mate
+Deploy: [task-mate-psi.vercel.app](https://task-mate-psi.vercel.app/)
