@@ -92,7 +92,7 @@ export const ModalEditTask = ({
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as never,
   });
 
   const handleEditTask = (data: FormData) => {
