@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectorTasks } from "../../store/reducers/tasks";
 import { isSameDay } from "date-fns";
 import { Task } from "./Task";
 import { cn } from "../../lib/utils";
+import { ModalAddTask } from "./modals/ModalAddTask";
 
 interface TaskItem {
   id: number;
@@ -20,6 +21,13 @@ export const ContentTasksScheduled: React.FC = () => {
     dateCurrent,
     groupIdCurrent,
   } = useSelector(selectorTasks);
+  const [modalAdd, setModalAdd] = useState<{
+    show: boolean;
+    time: string;
+  }>({
+    show: false,
+    time: "",
+  });
 
   let tasksGroup = tasks.filter((item) => isSameDay(item.date, dateCurrent));
   if (groupIdCurrent != 0) {
@@ -45,13 +53,13 @@ export const ContentTasksScheduled: React.FC = () => {
 
   return (
     <div>
-      <div className="p-10 pt-0 w-[90%] mx-auto ">
+      <div className="p-5 pt-0 w-[90%] mx-auto">
         <div className="my-4 font-semibold">Horários de tarefas</div>
 
         <div>
           {hours.map((hour, index) => {
             const tasksAtHour = tasksGroup.filter((task: TaskItem) => {
-              if (parseInt(task.time.split("~")[0].split(":")[0]) == hour) {
+              if (parseInt(task.time.split("-")[0].split(":")[0]) == hour) {
                 return task;
               }
             });
@@ -62,10 +70,20 @@ export const ContentTasksScheduled: React.FC = () => {
                   ref={currentHour === hour ? currentHourRef : null}
                   data-hour={hour}
                   className={`text-gray-500 mt-3 grid grid-cols-[60px_auto] items-center ${
-                    currentHour === hour ? " text-emerald-800" : ""
+                    currentHour === hour ? " text-emerald-700" : ""
                   }`}
                 >
-                  <div>{hour}h00</div>
+                  <div
+                    onClick={() =>
+                      setModalAdd({
+                        show: true,
+                        time: `${hour.toString().padStart(2, "0")} - `,
+                      })
+                    }
+                    className="hover:font-semibold cursor-pointer"
+                  >
+                    {hour.toString().padStart(2, "0")}h00
+                  </div>
                   {!tasksAtHour.length && (
                     <div
                       className={cn(
@@ -81,6 +99,17 @@ export const ContentTasksScheduled: React.FC = () => {
               </div>
             );
           })}
+
+          <ModalAddTask
+            isOpen={modalAdd?.show}
+            time={modalAdd?.time}
+            onClose={() =>
+              setModalAdd({
+                ...modalAdd,
+                show: false,
+              })
+            }
+          />
         </div>
       </div>
     </div>

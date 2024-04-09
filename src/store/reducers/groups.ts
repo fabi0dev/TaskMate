@@ -32,10 +32,19 @@ const groupsSlice = createSlice({
         (group) => group.id !== groupIdToDelete
       );
     },
+    updateGroup: (state, action: PayloadAction<Group>) => {
+      const updatedGroup = action.payload;
+      const index = state.groups.findIndex(
+        (group) => group.id === updatedGroup.id
+      );
+      if (index !== -1) {
+        state.groups[index] = updatedGroup;
+      }
+    },
   },
 });
 
-export const { createGroup, deleteGroup } = groupsSlice.actions;
+export const { createGroup, deleteGroup, updateGroup } = groupsSlice.actions;
 export default groupsSlice.reducer;
 
 export const selectorGroups = (state: { groups: GroupsProps }): GroupsProps =>

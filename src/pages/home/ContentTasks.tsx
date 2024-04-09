@@ -14,12 +14,14 @@ export const ContentTasks: React.FC = () => {
 
   return (
     <div className="sticky top-0 ">
-      <div className="my-4 font-semibold">Sem horário</div>
+      <div className="mb-4 font-semibold">Sem horário</div>
 
       <div>
         {tasksGroup.map((task, index) => (
           <Task key={index} data={task} />
         ))}
+
+        {!tasksGroup.length && <div className="text-gray-600">Nenhuma</div>}
       </div>
     </div>
   );
